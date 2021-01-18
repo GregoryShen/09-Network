@@ -313,19 +313,100 @@ HTTP/1.1 采用了长连接的方式，这使得管道（pipeline）网络传输
 
 ### HTTP 与 HTTPS 有哪些区别？
 
-
+1. HTTP 是超文本传输协议，信息是明文传输，存在安全风险的问题。HTTPS 则解决 HTTP 不安全的缺陷，在 TCP 和 HTTP 网络层之间加入了 SSL/TLS 安全协议，使得报文能够加密传输。
+2. HTTP 连接建立相对简单，TCP 三次握手之后便可以进行 HTTP 报文传输。而 HTTPS 在 TCP 三次握手之后，还需要进行 SSL/TLS 的握手过程，才可以进入加密报文传输。
+3. HTTP 的端口号是 80， HTTPS 的端口号是 443
+4. HTTPS 协议需要向 CA（证书权威机构）申请数字证书，来保证服务器的身份是可信的。
 
 ### HTTPS 解决了 HTTP 的哪些问题？
 
+HTTP 由于是明文传输，所以安全上存在以下三个风险：
 
+* 窃听风险，比如通信链路上可以获取通信内容，用户号容易没
+* 篡改风险，比如强制入垃圾广告，视觉污染，用户眼容易瞎
+* 冒充风险，比如冒充淘宝网站，用户钱容易没
+
+HTTPS 在 HTTP 和 TCP 层之间 加入了 SSL/TLS 协议
+
+<img src="https://mmbiz.qpic.cn/mmbiz_jpg/J0g14CUwaZfXG1113Sjm0iaOXfoOv0tlUzdWm2toFZmoutgdMlZichgjsFggJOHXg6Z09ckSyeTPpkdywfljh3uw/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:75%;" />
+
+
+
+可以很好地解决了上述风险：
+
+* 信息加密：交互信息无法被窃取，但你的号会因为“自身忘记”账号而没
+* 校验机制：无法篡改通信内容，篡改了就不能正常显示，但百度“竞价排名”依然可以搜索垃圾广告
+* 身份证书：证明淘宝网是真的淘宝网
+
+可见，只要自身不作恶，SSL/TLS 协议是能保证通信是安全的
 
 ### HTTPS 是如何解决上面的三个风险的？
 
+* 混合加密的方式实现信息的机密性，解决了窃听的风险
+* 摘要算法的方式来实现完整性，它能够为数据生成独一无二的“指纹”，指纹用于校验数据的完整性，解决了篡改的风险
+* 将服务器公钥放入到数字证书中，解决了冒充的风险
 
+#### 混合加密
+
+通过混合加密的方式可以保证信息的机密性，解决了窃听的风险
+
+<img src="https://mmbiz.qpic.cn/mmbiz_jpg/J0g14CUwaZfXG1113Sjm0iaOXfoOv0tlUYNGEmfY95A74GR3xicqXKZCDI7Q4icgQu7CuSSx9QiaFlr4Py49RHonjw/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:75%;" />
+
+HTTPS 采用的是 对称加密 和 非对称加密 结合的 混合加密方式：
+
+* 在通信建立前采用非对称加密的方式交换“会话秘钥”，后续就不再使用非对称加密
+* 在通信过程中全部使用对称加密的“会话密钥”的方式加密明文数据
+
+采用“混合加密”的方式的原因：
+
+* 对称加密只使用一个密钥，运算速度快，密钥必须保密，无法做到安全的密钥交换
+* 非对称加密使用两个密钥：公钥和私钥，公钥可以任意分发而私钥保密，解决了密钥交换问题但速度慢
+
+#### 摘要算法
+
+摘要算法用来实现完整性，能够为数据生成独一无二的“指纹”，用于校验数据的完整性，解决了篡改的风险。
+
+<img src="https://mmbiz.qpic.cn/mmbiz_jpg/J0g14CUwaZfXG1113Sjm0iaOXfoOv0tlUicIliaBcr2XAXpMdeibLG4MMticpkX0e6xZHbXeiavMu7faJcL2TdVj0Udw/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:75%;" />
+
+客户端在发送明文之前会通过摘要算法算出明文的“指纹”，发送时把指纹+明文一同加密成密文后，发送给服务器，服务器解密后，用相同的摘要算法算出发送过来的明文，通过比较客户端携带的“指纹”和当前算出的“指纹”做比较，若“指纹”相同，说明数据是完整的。
+
+#### 数字证书
+
+客户端先向服务器端索要公钥，然后用公钥加密信息，服务器收到密文后，用自己的私钥解密。
+
+这就存在问题，如何保证公钥不被篡改和信任度？
+
+所以这里就需要借助第三方权威机构 CA（数字证书认证机构），将服务器公钥放在数字证书（由数字证书认证机构颁发）中，只要证书是可信的，公钥就是可信的。
+
+<img src="https://mmbiz.qpic.cn/mmbiz_jpg/J0g14CUwaZfXG1113Sjm0iaOXfoOv0tlUibyiaEab7NMrTn632LZmYQe5qaibibT0xsOs7ic6u98ypWJBjbPMzOUCb2g/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:75%;" />
+
+通过数字证书的方式保证服务器公钥的身份，解决冒充的风险。
 
 ### HTTPS是如何建立连接的？其间交互了什么？
 
+SSL/TLS 协议基本流程：
 
+* 客户端向服务器索要并验证服务器的公钥
+* 双方协商生产“会话密钥”
+* 双方采用“会话密钥”进行加密通信
+
+前两步也就是 SSL/TLS 的建立过程， 也就是握手阶段。
+
+SSL/TLS 的“握手阶段”涉及四次通信，可见下图：
+
+![](https://mmbiz.qpic.cn/mmbiz_jpg/J0g14CUwaZfXG1113Sjm0iaOXfoOv0tlUMRTqQDVOJHMZe3JoN5TqSb0uYicOqMH2qHgic7M6rtCrjPOToDjBm11A/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+
+SSL/TLS 协议建立的详细流程：
+
+我觉得这个应该不会问。。先不看了。。。
+
+#### ClientHello
+
+#### ServerHello
+
+#### 客户端回应
+
+#### 服务器的最后回应
 
 ## HTTP/1.1、HTTP/2、HTTP/3 演变
 
