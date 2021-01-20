@@ -8,13 +8,47 @@
 
 什么是 TCP ？
 
-什么是 TCP 连接？
+### 什么是 TCP 连接？
+
+我们来看看RFC 793 是如何定义“连接”的：
+
+> Connections:
+>
+> The reliability and flow control mechanisms described above require that TCPs initialize and maintain certain status information for each data stream.
+>
+> The combination of this information, including sockets, sequence numbers, and window sizes, is called a connection.
+
+简单来说就是，用于保证可靠性和流量控制维护的某些状态信息，这些信息的组合，包括Socket、序列号和窗口大小称为连接。
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843wVoVXxKKTibcN9sLAuSgibkDfV2X8LH8eicpV1yAJ1uffibGqAuWShXibYg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:75%;" />
+
+所以我们可以知道，建立一个TCP连接是需要客户端与服务器端达成上述三个信息的共识。
+
+* Socket：由IP地址和端口号组成
+* 序列号：用来解决乱序问题等
+* 窗口大小：用来做流量控制
+
+
 
 如何唯一确定一个 TCP 连接呢？
 
 有一个 IP 的服务器监听了一个端口，它的 TCP 的最大连接数是多少？
 
-UDP 和 TCP 有什么区别呢？分别的应用场景是？
+### UDP 和 TCP 有什么区别呢？分别的应用场景是？
+
+UDP 不提供复杂的控制机制，利用IP提供面向“无连接”的通信服务。
+
+UDP协议真的非常简，头部只有8个字节（64位），UDP的头部格式如下：
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS8431Mymq2yPGjMPGodSEg8b31eoyQbibzGjDEHiaQUUDlbvCEwcXN3aicOTw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:75%;" />
+
+* 目标和源端口：主要是告诉UDP 协议应该把报文发给哪个进程
+* 包长度：该字段保存了UDP首部的长度跟数据的长度之和
+* 校验和：校验和是为了提供可靠的UDP首部和数据而设计
+
+TCP和UDP区别：
+
+
 
 为什么 UDP 头部没有「首部长度」字段，而 TCP 头部有「首部长度」字段呢？
 
@@ -28,7 +62,7 @@ UDP 和 TCP 有什么区别呢？分别的应用场景是？
 
 如何在 Linux 系统中查看 TCP 状态？
 
-为什么是三次握手？不是两次、四次？
+### 为什么是三次握手？不是两次、四次？
 
 为什么客户端和服务端的初始序列号 ISN 是不相同的？
 
@@ -42,7 +76,11 @@ UDP 和 TCP 有什么区别呢？分别的应用场景是？
 
 ### TCP 四次挥手过程和状态变迁
 
-为什么挥手需要四次？
+
+
+### 为什么挥手需要四次？
+
+
 
 为什么 TIME_WAIT 等待的时间是 2MSL？
 

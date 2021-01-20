@@ -412,15 +412,93 @@ SSL/TLS 协议建立的详细流程：
 
 ### 说说 HTTP/1.1 相比 HTTP/1.0 提高了什么性能？
 
+HTTP/1.1 相比 HTTP/1.0 性能上的改进：
 
+* 使用 TCP 长连接的方式改善了 HTTP/1.0 短连接造成的性能开销
+* 支持管道（pipeline）网络传输，只要第一个请求发出去了，不必等其回来，就可以发第二个请求出去，可以j减少整体的响应时间
+
+但 HTTP/1.1 还是有性能瓶颈：
+
+* 请求/响应头部（Header）未经压缩就发送，首部信息越多延迟越大。只能压缩Body 的部分
+* 发送冗长的首部，每次互相发送相同的首部造成的浪费较多
+* 服务器是按请求的顺序响应的，如果服务器响应慢，会招致客户端一直请求不到数据，也就是队头阻塞
+* 没有请求优先级控制
+* 请求只能从客户端开始，服务器只能被动响应
 
 ### 那上面的 HTTP/1.1 的性能瓶颈，HTTP/2 做了什么优化？
 
+HTTP/2 协议是基于 HTTPS 的，所以 HTTP/2 的安全性也是有保障的
 
+HTTP/2 相比 HTTP/1.1 性能上的改进：
+
+#### 头部压缩
+
+HTTP/2 会==压缩头==（Header），如果你同时发出多个请求，他们的头是一样的或是相似的，那么，==协议会帮你消除重复的部分==。
+
+这就是所谓的 HPACK 算法：在客户端和服务器同时维护一张头信息表，所有字段都会存入这个表，生成一个索引号，以后就不发送同样字段了，只发送索引号，这样就提高速度了。
+
+<img src="https://mmbiz.qpic.cn/mmbiz_jpg/J0g14CUwaZfXG1113Sjm0iaOXfoOv0tlUicf9XsgyOGDvTA9SsOicIz8t3pSibrAHTN6TW83WCmZsSeDqtZibJnoRHg/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+#### 二进制格式
+
+HTTP/2 不再像 HTTP/1.1 里的纯文本形式的报文，而是全面采用了**二进制格式**。
+
+头信息和数据体都是二进制，并且统称为帧：头信息帧和数据帧
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZfXG1113Sjm0iaOXfoOv0tlUahoiazC1GOBz9ICKnAd4f1PesMoT4wK4RiciaSO8e4jVakTIKfvgYCdpg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:75%;" />
+
+这样虽然对人不友好，但是对计算机非常友好，因为计算机只懂二进制，那么受到报文后，无需再将明文的报文转成二进制，而是直接解析二进制报文，这**<u>增加了数据传输的效率</u>**。
+
+#### 数据流
+
+HTTP/2 的数据包不是按顺序发送的，同一个连接里面连续的数据包，可能属于不同的回应。因此，必须要对数据包做标记，指出它属于哪个回应。
+
+**<u>每个请求或回应的所有数据包，称为一个数据流（Stream）</u>**
+
+每个数据流都标记着一个独一无二的编号，其中规定客户端发出的数据流编号为奇数，服务端发出的数据流编号为偶数
+
+客户端还可以指定数据流的优先级，优先级高的请求，服务器就先响应该请求。
+
+#### 多路复用
+
+HTTP/2 是可以==在一个连接中并发多个请求或回应，而不用按顺序一一对应==。
+
+移除了 HTTP/1.1 中的串行请求，不需要排队等待，也就不会再出现“队头阻塞”问题，降低了延迟，大幅度提高了连接的利用率。
+
+举例来说，在一个TCP连接里，服务器收到了客户端A和B两个请求，如果发现A处理过程非常耗时，于是就回应A请求已经处理好的部分，接着回应B请求，完成后，再回应A请求剩下的部分。
+
+#### 服务器推送
+
+HTTP/2 还在一定程度上改善了传统的“请求 - 应答”工作模式，服务不再是被动地响应，也可以**<u>主动向客户端发送消息</u>**。
+
+举例来说，在浏览器刚请求 HTML 的时候，就提前把可能会用到的JS、CSS文件等静态资源主动发给客户端，较少延时的等待，也就是服务器推送（Server Push,也叫Cache Push）
 
 ### HTTP/2 有哪些缺陷？HTTP/3 做了哪些优化？
 
+HTTP/2 主要的问题在于：多个HTTP请求在复用一个TCP连接，下层的TCP协议是不知道有多少个HTTP请求的。
 
+所以一旦发生了丢包现象，就会触发TCP的重传机制，这样在一个TCP连接中的所有HTTP请求都必须等待这个丢了的包被重传回来。
+
+* HTTP/1.1 中的管道（pipeline）传输中如果有一个请求阻塞了，那么队列后请求也通通被阻塞了
+* HTTP/2 多请求复用一个TCP连接，一旦发生丢包，就会阻塞住所有的HTTP请求。
+
+这都是基于TCP传输层的问题，所以==HTTP/3把HTTP下层的TCP协议改成了UDP==
+
+![](https://mmbiz.qpic.cn/mmbiz_jpg/J0g14CUwaZfXG1113Sjm0iaOXfoOv0tlUy5OSaaTftjD7JmdU4AUMnlrGOWXnMYss5sCxMMTPUibLeHIgdsdkklQ/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+
+UDP 发生是不管顺序，也不管丢包的，所以不会出现HTTP/1.1 的队头阻塞和HTTP/2的一个丢包全部重传问题。
+
+大家都知道UDP是不可靠传输的，但基于UDP的QUIC协议可以实现类似TCP的可靠性传输
+
+* QUIC 有自己的一套机制可以保证传输的可靠性。当某个流发生丢包时，只会阻塞这个流，其他流不会受到影响
+* TLS升级成了最新的1.3版本，头部压缩算法也升级成了QPack
+* HTTPS要建立一个连接，要花费6次交互，先是建立三次握手，然后是TLS/1.3的三次握手。QUIC直接把以往的TCP和TLS/1.3的6次交互合并成了3次，减少了交互次数。
+
+![](https://mmbiz.qpic.cn/mmbiz_jpg/J0g14CUwaZfXG1113Sjm0iaOXfoOv0tlUyP3HNicKS2J21mHQD9EepOiciakC8nRkrX9C3I0hjC6Fhjvd4nLiakuLeg/640?wx_fmt=jpeg&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+
+所以，QUIC是一个在UDP之上的伪TCP+TLS+HTTP/2的多路复用的协议。
+
+QUIC是新协议，对于很多网络设备，根本不知道什么是QUIC，只会当做UDP，这样会出现新的问题。所以HTTP/3现在普及的进度非常缓慢。
 
 # [探究！一个数据包在网络中的心路历程](https://mp.weixin.qq.com/s/iSZp41SRmh5b2bXIvzemIw)
 
