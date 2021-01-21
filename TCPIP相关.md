@@ -46,9 +46,45 @@ UDP协议真的非常简，头部只有8个字节（64位），UDP的头部格�
 * 包长度：该字段保存了UDP首部的长度跟数据的长度之和
 * 校验和：校验和是为了提供可靠的UDP首部和数据而设计
 
-TCP和UDP区别：
+#### TCP和UDP区别
 
+##### 连接
 
+* TCP 是面向连接的传输层协议，传输数据前要先建立连接
+* UDP 是不需要连接，即刻传输数据
+
+##### 服务对象
+
+* TCP 是一对一的两点服务，即一条连接只有两个端点
+* UDP 支持一对一、一对多、多对多的交互通信
+
+##### 可靠性
+
+* TCP 是可靠交付数据的，数据可以无差错、不丢失、不重复、按需到达
+* UDP 是尽最大努力交付，不保证可靠数据交付
+
+##### 拥塞控制、流量控制
+
+* TCP 有拥塞控制和流量控制机制，保证数据传输的安全性
+* UDP 则没有，即使网络非常拥堵了，也不会影响 UDP 的发送速率。
+
+##### 首部开销
+
+* TCP 首部长度较长，会有一定的开销，首部在没有使用“选项”字段时是20个字节，如果使用了“选项”字段则会变长
+* UDP 的首部只有8个字节，并且是固定不变的，开销较小
+
+#### TCP和UDP应用场景
+
+由于TCP是面向连接，能保证数据的可靠性交付，因此经常用于：
+
+* FTP 文件传输
+* HTTP / HTTPS
+
+由于UDP面向无连接，它可以随时发送数据，再加上UDP本身的处理既简单又高效，因此经常用于：
+
+* 包总量较少的通信，如DNS，SNMP 等
+* 视频、音频等多媒体通信
+* 广播通信
 
 为什么 UDP 头部没有「首部长度」字段，而 TCP 头部有「首部长度」字段呢？
 
@@ -58,11 +94,109 @@ TCP和UDP区别：
 
 ### TCP 三次握手过程和状态变迁
 
+TCP 是面向连接的协议，所以使用TCP前必须先建立连接，而建立连接是通过三次握手而进行的。
 
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843fFol7gd3035Kibg3gPMSAZQLVibf9nwEblOUaX80hoOaRLVpaYCAI44w/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+1. 一开始，客户端和服务端都处于CLOSED 状态。显示服务端主动监听某个端口，处于LISTEN状态
+
+	<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843V0vbLBibXMvJbdiaqbfw4CictHX1Uc3OpOFWvZwxeI8B5Pv7y3beeAN9A/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+2. 客户端会随机初始化序号（client_isn），将此序号置于TCP首部的“序号”字段中，同时把SYN标志位置为1，表示SYN 报文。接着把第一个SYN报文发送给服务端，表示向服务端发起连接，该报文不包含应用层数据，之后客户端处于SYN-SENT状态
+
+	<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS84320oABn0E6jjsYHLicn6L5mlunbCDWGImCCHs41AWjZMnV8P1qdM99fQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+3. 服务端收到客户端的 SYN 报文后，首先服务端也随机初始化自己的序号（server_isn），将此序号填入TCP首部的“序号”字段中，其次把TCP首部的“确认应答号”字段填入client_isn+1,接着把SYN和ACK标志位置为1.最后把该报文发给客户端，该报文也不包含应用层数据，之后服务端处于 SYN-PCVD 状态
+
+	<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843OM01fA1X8oZ3wpr2AV8ngpjSJcyhoTQEAFKo8UdYMr456Fb5dv0alQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+4. 客户端收到服务端报文后，还要向服务端回应最后一个应答报文，首先该应答报文TCP首部ACK 标志位置为1，其次“确认应答号”字段填入 server_isn + 1, 最后把报文发送给服务端，这次报文可以携带客户到服务器的数据，之后客户端处于 ESTABLISHED 状态
+
+5. 服务器收到客户端的应答报文后，也进入 ESTABLISHED 状态
+
+从上面的过程可以发现第三次握手是可以携带数据的，前两次握手是不可以携带数据的，这也是面试常问的题。
+
+一旦完成三次握手，双方都处于 ESTABLISHED 状态，至此连接就已建立完成，客户端和服务端就可以相互发送数据了。
 
 如何在 Linux 系统中查看 TCP 状态？
 
 ### 为什么是三次握手？不是两次、四次？
+
+相信大家比较常回答的是：“因为三次握手才能保证双方具有接收和发送的能力“。
+
+这回答是片面的，并没有说出主要的原因。
+
+在前面我们知道了什么是 TCP 连接：
+
+* 用于保证可靠性和流量控制维护某些状态信息，这些信息的组合，包括Socket、序列号和窗口大小称为连接
+
+所以，重要的是为什么三次握手才可以初始化Socket、序列号和窗口大小并建立TCP连接。
+
+接下来以三个方面分析三次握手的原因：
+
+* 三次握手才可以组织历史重复连接的初始化（主要原因）
+* 三次握手才可以同步双方的初始序列号
+* 三次握手才可以避免浪费
+
+#### 原因一：避免历史连接
+
+我们来看看 RFC793 指出的TCP连接使用三次握手的首要原因：
+
+The principle reason for the three-way handshake is to prevent old duplicate connection initiations from causing confusion.
+
+简单来说，三次握手的首要原因是为了防止旧的重复连接初始化造成混乱。
+
+网络环境是错综复杂的，往往并不是如我们期望的一样，先发送的数据包，就先到达目标主机，反而它很骚，可能会由于网络拥堵等乱七八糟的原因，会使得旧的数据包，先到达目标主机，那么这种情况下TCP三次握手是如何避免的：
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS8436nKau10lAsztRqbyhjC1C1GRcsEz04icZmomMjwcxgeGn97BnKUoxibw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+客户端连续发送多次SYN建立连接的报文，在网络拥堵等情况下：
+
+* 一个“旧SYN报文”比“最新的SYN”报文早到达了服务端
+* 那么此时服务端就会回一个SYN+ACK报文给客户端
+* 客户端收到后可以根据自身的上下文，判断这是一个历史连接（序列号过期或超时），那么客户端就会发送RST报文给服务端，表示中止这一次连接。
+
+如果是两次握手连接，就不能判断当前连接是否是历史连接，三次握手则可以在客户端（发送方）准备发送第三次报文时，客户端因有足够的上下文来判断当前连接是否是历史连接：
+
+* 如果是历史连接（序列号过期或超时），则第三次握手发送的报文是RST报文，所以中止此次历史连接
+* 如果不是历史连接，则第三次发送的报文是ACK报文，通信双方就会成功建立连接
+
+所以，TCP使用<u>三次握手建立连接的最主要原因是==防止历史连接初始化了连接==。</u>
+
+#### 原因二：同步双方初始序列号
+
+TCP协议的通信双方，都必须维护一个“序列号”，序列号是可靠传输的一个关键因素，它的作用：
+
+* 接收方可以去除重复的数据
+* 接收方可以根据数据包的序列号按序接收
+* 可以标识发送出去的数据包中，哪些是已经被对方收到的
+
+可见，序列号在TCP连接中占据着非常重要的作用，所以当客户端发送携带“初始序列号”的SYN报文的时候，需要服务端回一个ACK应答报文，表示客户端的SYN报文已被服务端成功接收，那当服务端发送“初始序列号”给客户端的时候，依然也要得到客户端的应答回应，这样一来一回才能确保双方的初始序列号能被可靠的同步。
+
+四次握手其实也能够可靠的同步双方的初始化序号，但由于第二步和第三步可以优化成一步，所以就成了三次握手。
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843HWajXhQQfx6CH4EUxLqib0AAOXolZfIvuoEDkDoXaQ3RIceibo8ia9MQQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+而两次握手只保证了一方的初始序列号能被对方成功接收，没办法保证双方的初始序列号都能被确认接收。
+
+#### 原因三：避免资源浪费
+
+如果只有“两次握手”，当客户端的SYN请求连接在网络中阻塞，客户端没有接收到ACK报文，就会重新发送SYN，由于没有第三次握手，服务器不清楚客户端是否收到了自己发送的建立连接的ACK确认信号，所以每收到一个SYN就只能先主动建立一个连接，这会造成：
+
+如果客户端的SYN阻塞了，重复发送多次SYN报文，那么服务器在收到请求后就会建立多个冗余的无效链接，造成不必要的资源浪费。
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843CaTeGEvR5jg3iaHbUTEroayMBUoK3yfy9zGwlIia8pJu8x4RDkDGFLicg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:75%;" />
+
+即两次握手会造成消息滞留情况下，服务器重复接受无用的连接请求SYN报文，而造成重复分配资源。
+
+#### 小结
+
+TCP建立连接时，通过三次握手能防止历史连接的建立，能减少双方不必要的资源开销，能帮助双方同步初始化序号。序列号能保证数据包不重复、不丢弃和按序传输。
+
+不使用 两次握手 和 四次握手 的原因：
+
+* 两次握手： 无法防止历史连接的建立，会造成双方资源的浪费，也无法可靠的同步双方序列号
+* 四次握手：三次握手就已经理论上最少可靠连接建立，所以不需要使用更多的通信次数。
 
 为什么客户端和服务端的初始序列号 ISN 是不相同的？
 
