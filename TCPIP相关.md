@@ -2,11 +2,38 @@
 
 ## TCP 基本知识
 
-瞧瞧 TCP 头格式
+### 瞧瞧 TCP 头格式
 
-为什么需要 TCP 协议？TCP 工作在哪一层？
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843ZPb6tFLvCVuXEn98khfs7y2KRvOV0ia5icVByzIK3aAKRURuVZKagsKw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:75%;" />
 
-什么是 TCP ？
+<u>序列号</u>：在建立连接时由计算机生成的随机数作为其初始值，通过SYN包传给接收端主机，每发送一次数据，就累加一次该数据字节数大小。<u>用来解决网络包乱序问题。</u>
+
+<u>确认应答号</u>：指下一次“期望” 收到的数据的序列号，发送端收到这个确认应答以后可以认为在这个序号以前的数据都已经被正常接收。<u>用来解决不丢包的问题。</u>
+
+<u>控制位</u>：
+
+* <u>ACK</u>：该位为1时，“确认应答” 的字段变为有效，TCP规定<u>除了最初建立连接时的 SYN 包之外该位必须设置为1.</u>
+* <u>RST</u>：该位为1时，表示TCP连接中<u>出现异常必须强制断开连接</u>
+* <u>SYN</u>：该位为1时，表示<u>希望建立连接，并在其“序列号”的字段进行序列号初始值的设定</u>
+* <u>FIN</u>：该位为1时，表示<u>今后不会再有数据发送，希望断开连接。</u>当通信结束希望断开连接时，通信双方的主机就可以相互交换FIN位置为1的TCP段。
+
+### 为什么需要 TCP 协议？TCP 工作在哪一层？
+
+IP 层是“不可靠”的，它不保证网络包的交付、不保证网络包的按序交付、也不保证网络包中的数据的完整性。
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843tzTAWL4l6rZB0pulNqkLno7buMqnh5Hlphn7aibB798ga1t3a0Dqmzg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:75%;" />
+
+如果需要保障网络数据包的可靠性，就需要由上层（传输层）的TCP协议来负责。
+
+因为TCP是一个工作在**传输层**的**可靠**数据传输服务，它能确保接收端接收的网络包是**无损坏**、**无间隔**、**非冗余和按序**的。
+
+### 什么是 TCP ？
+
+TCP 是**面向连接的**、**可靠的**、**基于字节流**的传输层通信协议。
+
+* 面向连接：一定是“一对一”才能连接，不能像UDP协议，可以一个主机同时向多个主机发送消息，也就是一对多是无法做到的
+* 可靠的：无论在网络链路中出现了怎样的链路变化，TCP都可以保证一个报文一定能够到达接收端
+* 字节流：消息是“没有边界”的，所以无论我们消息有多大都可以进行传输。并且消息是“有序的”，当前一个消息没有收到的时候，即使它先收到了后面的字节，也不能扔给应用层去处理，同时对重复的报文会自动丢弃。
 
 ### 什么是 TCP 连接？
 
@@ -28,11 +55,22 @@
 * 序列号：用来解决乱序问题等
 * 窗口大小：用来做流量控制
 
+### 如何唯一确定一个 TCP 连接呢？
+
+TCP 四元组可以唯一地确定一个连接，四元组包括如下：
+
+* 源地址
+* 源端口
+* 目标地址
+* 目标端口
+
+源地址和目的地址的字段（32位）是在IP头部中，作用是通过IP协议发送报文给对方主机。
+
+源端口和目的端口字段（16位）是在TCP头部中，作用是告诉TCP协议应该把报文发给哪个进程。
+
+### 有一个 IP 的服务器监听了一个端口，它的 TCP 的最大连接数是多少？
 
 
-如何唯一确定一个 TCP 连接呢？
-
-有一个 IP 的服务器监听了一个端口，它的 TCP 的最大连接数是多少？
 
 ### UDP 和 TCP 有什么区别呢？分别的应用场景是？
 
@@ -98,7 +136,7 @@ TCP 是面向连接的协议，所以使用TCP前必须先建立连接，而建�
 
 <img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843fFol7gd3035Kibg3gPMSAZQLVibf9nwEblOUaX80hoOaRLVpaYCAI44w/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
-1. 一开始，客户端和服务端都处于CLOSED 状态。显示服务端主动监听某个端口，处于LISTEN状态
+1. 一开始，客户端和服务端都处于 CLOSED 状态。显示服务端主动监听某个端口，处于LISTEN状态
 
 	<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843V0vbLBibXMvJbdiaqbfw4CictHX1Uc3OpOFWvZwxeI8B5Pv7y3beeAN9A/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
