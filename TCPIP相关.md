@@ -70,7 +70,16 @@ TCP 四元组可以唯一地确定一个连接，四元组包括如下：
 
 ### 有一个 IP 的服务器监听了一个端口，它的 TCP 的最大连接数是多少？
 
+服务器通常固定在某个本地端口上监听，等待客户端的连接请求。因为，客户端IP和端口是可变的，其理论值计算公式如下：
 
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843wBh1Ca3jpEqO0Xia0YzlicCgFdhLw8N4f0TCfglTwtxzecpECvmhBtEQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+对 IPv4, 客户端的IP数最多为2的32次方，客户端的端口数最多为2的16次方，也就是服务端单机最大TCP连接数约为2的48次方。
+
+当然，服务端最大并发TCP连接数远不能达到理论上限。
+
+* 首先主要是文件描述符限制，Socket都是文件，所以首先要通过 `ulimit` 配置文件描述符的数目
+* 另一个是内存限制，每个TCP连接都要占用一定内存，操作系统是有限的。
 
 ### UDP 和 TCP 有什么区别呢？分别的应用场景是？
 
@@ -156,7 +165,11 @@ TCP 是面向连接的协议，所以使用TCP前必须先建立连接，而建�
 
 一旦完成三次握手，双方都处于 ESTABLISHED 状态，至此连接就已建立完成，客户端和服务端就可以相互发送数据了。
 
-如何在 Linux 系统中查看 TCP 状态？
+### 如何在 Linux 系统中查看 TCP 状态？
+
+TCP 的连接状态查看在Linux可以通过 `netstat -napt` 命令查看。
+
+![](https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843TdYaGI3f27nYYR47ibmH0iaV6zODCZhwpVoX7t7iasTTplcibpXXMib2DJA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
 
 ### 为什么是三次握手？不是两次、四次？
 
