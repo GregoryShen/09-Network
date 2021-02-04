@@ -52,7 +52,7 @@ HTTP 是一个==双向协议==.
 
 数据虽然是在A和B之间传输, 但==允许中间有中转或接力==.
 
-在HTTP里, 需要中间人遵从HTTP协议, 只要不打扰基本的数据传输, 就可以添加任意额外的东西.
+在 HTTP 里, 需要中间人遵从 HTTP 协议, 只要不打扰基本的数据传输, 就可以添加任意额外的东西.
 
 针对传输, 我们可以进一步理解HTTP.
 
@@ -98,7 +98,7 @@ HTML 就是最常见的超文本了, 它本身只是纯文字文件, 但内部�
 
 「204 No Content」也是常见的成功状态码, 与200 OK 基本相同, 但响应头没有 body 数据.
 
-「206 Partial Content」是应用于 HTTP 分块下载或断电续传, 表示响应返回的body 数据并不是资源的全部, 而是其中的一部分, 也是服务器处理成功的状态.
+「206 Partial Content」是应用于 HTTP 分块下载或断点续传, 表示响应返回的body 数据并不是资源的全部, 而是其中的一部分, 也是服务器处理成功的状态.
 
 #### 3xx
 
@@ -290,8 +290,6 @@ HTTP 协议是基于 TCP/IP， 并且使用了“请求- 应答” 的通信模�
 为了解决上述 TCP 连接问题，HTTP/1.1 提出了长连接的通信方式，也较持久连接。这种方式的好处在于较少了 TCP 连接的重复建立和断开所造成的额外开销，并减轻了服务器端的负载。
 
 <u>持久连接的特点是，==只要任意一端没有明确提出断开连接，则保持TCP 连接状态==。</u>
-
-
 
 #### 管道网络传输
 
@@ -502,33 +500,101 @@ QUIC是新协议，对于很多网络设备，根本不知道什么是QUIC，只
 
 # [探究！一个数据包在网络中的心路历程](https://mp.weixin.qq.com/s/iSZp41SRmh5b2bXIvzemIw)
 
+一个简单的网络模型
+
+![](https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvsInYzWibsjcxkyWMoKXUUvgnbg7zrZaghyUSI6dW1jZO3UcJqL66hdA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1)
+
 ## 孤单小弟 —— HTTP
 
 ### 浏览器做的第一步工作是解析 URL
 
+首先浏览器做的第一步工作就是要对 URL 进行解析，从而生成发送给 Web 服务器的请求信息。
 
+让我们看看一条长长的 URL 里的各个元素都代表什么，见下图：
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvcTsJcAXekhUYmHxS7JZ140D1q9bPNOZ2xeML16Hia4K6ByOjq0rcMPg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+所以图中长长的 URL 实际上是请求服务器里的文件资源。
 
 ### 要是上图中的蓝色部分 URL 元素都省略了，哪应该是请求哪个文件呢？
 
-
+当没有路径名时，就代表访问根目录下事先设置的默认文件，也就是 /index.html 或者 /default.html 这些文件，这样就不会发生混乱了。
 
 ### 生产 HTTP 请求信息
+
+对 URL 进行解析之后，浏览器确定了 Web 服务器和文件名，接下来就是根据这些信息来生成 HTTP 请求消息了。
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvCl3iaCJeUV6Oa8zESpNKPDicgibjwANs465zibfWwwUQlMZsjciaNicO1Vwg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
 
 
 ## 真实地址查询 —— DNS
 
+通过浏览器解析 URL 并生成 HTTP 消息后，需要委托操作系统将消息发送给 Web 服务器。
+
+但在发送之前，还有一项工作需要完成，那就是查询服务器域名对应的 IP 地址，因为委托操作系统发送消息时，必须提供通信对象的 IP 地址。
+
+比如我们打电话的时候，必须要知道对方的电话号码，但由于电话号码难以记忆，所以通常我们会将对方电话号码 +  姓名保存在通讯录里。
+
+所以，有一种服务器就专门保存了 Web 服务器域名和 IP 的对应关系，它就是 DNS 服务器。
+
 ### 域名的层级关系
 
+DNS 中的域名都是用句点来分隔的，比如 www.server.com，这里的句点代表了不同层次之间的界限。
 
+在域名中，越靠右的位置表示其层级越高。
+
+根域是在最顶层，它的下一层就是 com 顶级域，再下面是 server.com
+
+所以域名的层级关系类似一个树状结构：
+
+* 根 DNS 服务器
+* 顶级域 DNS 服务器（com）
+* 权威 DNS 服务器 （server.com）
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvN6F6eZ2vAU04o8gh1mJ6l7ovc7wsCvTVMvCFHyHqfsRUKtWYnblsCA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+根域的 DNS 服务器信息保存在互联网中所有的 DNS 服务器中。
+
+这样一来，任何 DNS 服务器就都可以找到并访问根域 DNS 服务器了。
+
+因此，客户端只要能够找到任意一台 DNS 服务器，就可以通过它找到根域 DNS 服务器，然后再一路顺藤摸瓜找到位于下层的某台目标 DNS 服务器。
 
 ### 域名解析的工作流程
 
+1. 客户端首先会发出一个 DNS 请求，问 www.server.com 的 IP 是啥，并发给本地 DNS 服务器（也就是客户端的 TCP/IP 设置中填写的 DNS 服务器地址）。
+2. 本地域名服务器收到客户端的请求后，如果缓存里的表格能找到 www.server.com，则它直接返回 IP 地址，如果没有，本地 DNS 会去问它的根域名服务器：“老大，能告诉我 www.server.com 的 IP 地址吗？”根域名服务器是最高层次的，它不直接用于域名解析，但能指明一条道路。
+3. 根 DNS 收到来自本地 DNS 的请求后，发现后置是 .com，说：“www.server.com 这个域名归 .com 区域管理，我给你 .com 顶级域名服务器地址给你，你去问问它吧。”
+4. 本地 DNS 收到顶级域名服务器的地址后，发起请求问“老二，你能告诉我 www.server.com 的 IP 地址吗？”
+5. 顶级域名服务器说：“我给你负责 www.server.com 区域的权威 DNS 服务器的地址，你去问问它应该能问到。”
+6. 本地 DNS 于是转向问权威 DNS 服务器：“老三，www.server.com 对应的 IP 是啥啊？” server.com 的权威 DNS 服务器，它是域名解析结果的原出处。为啥叫权威呢？就是我的域名我做主。
+7. 权威 DNS 服务器查询后将对应的 IP 地址 X.X.X.X 告诉本地 DNS。
+8. 本地 DNS 再将 IP 地址返回客户端，客户端和目标建立连接。
 
+至此，我们完成了 DNS 的解析过程。现在总结一下，看下图：
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCv5bBPibRf9nk4wIb6J3jP62L6NEmPk3HicMUgf8VatcBicynP6BKLeT6GQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+DNS 域名解析过程蛮有意思的，整个过程就和我们日常生活中找人问路的过程类似，只指路不带路。
 
 ## 指南好帮手 —— 协议栈
 
+通过 DNS 获取到 IP 后，就可以把 HTTP 的传输工作交给操作系统中的协议栈。
 
+协议栈的内部分为几个部分，分别承担不同的工作。上下关系是有一定规则的，上面的部分会向下面的部分委托工作，下面的部分收到委托的工作并执行。
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvbLic0XNMIJgJ0pDm6K4s39vgGO4enAIT1jzDXfQPYrdiaQe8TMy11Wicw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+应用程序（浏览器）通过调用 Socket 库，来委托协议栈工作。协议栈的上半部分有两块，分别是负责收发数据的 TCP 和 UDP 协议，他们俩会接收应用层的委托执行收发数据的操作。
+
+协议栈的下面一半是用 IP 协议控制网络包收发操作，在互联网上传数据时，数据会被切分成一块块的网络包，而将网络包发送给对方的操作就是由 IP 负责的。
+
+此外 IP 中还包括 ICMP 协议和 ARP 协议。
+
+* ICMP 用于告知网络包传送过程中产生的错误以及各种控制信息。
+* ARP 用于根据 IP 地址查询响应的以太网 MAC 地址。
+
+IP 下面的网卡驱动程序负责控制网卡硬件，而最下面的网卡则负责完成实际的收发操作，也就是对网线中的信号执行发送和接收操作。
 
 ## 可靠传输 —— TCP
 
