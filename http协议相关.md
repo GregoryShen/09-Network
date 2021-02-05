@@ -598,7 +598,21 @@ IP 下面的网卡驱动程序负责控制网卡硬件，而最下面的网卡�
 
 ## 可靠传输 —— TCP
 
+HTTP 是基于 TCP 协议传输的，所以在这我们先了解下 TCP 协议。
+
+### TCP 报头格式
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvWT9m8xicZXKk6ayV6nKAiaUAhdpdicfibLGEYhHx9OBo7EocXKx8wgIgww/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+首先，源端口号和目的端口号是不可少的，如果没有这两个端口号，数据就不知道该发给哪个应用。
+
+接下来有包的序号，这是为了解决包乱序的问题。
+
+还应该有的是确认号，目的是确认发出去对方是否有收到。
+
 ### TCP 传输数据之前，要先三次握手建立连接
+
+
 
 
 
