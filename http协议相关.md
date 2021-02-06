@@ -12,7 +12,7 @@
 
 ### HTTP 是什么？描述一下？
 
-HTTP 是 超文本传输协议， 也就是 ==H==yper==T==ext ==T==ransfer ==P==rotocol
+HTTP 是「超文本传输协议」， 也就是 ==H==yper==T==ext ==T==ransfer ==P==rotocol
 
 ### 能否详细解释「超文本传输协议」?
 
@@ -249,11 +249,11 @@ HTTPS 也就是在 HTTP 与 TCP 层之间增加了 SSL/TLS 安全传输层，HTT
 
 ### 那它的缺点呢？
 
-HTTP 协议里有优缺点一题的双刃剑，分别是“无状态、明文传输”， 同时还有一大缺点“不安全”。
+HTTP 协议里有优缺点一体的双刃剑，分别是“无状态、明文传输”， 同时还有一大缺点“不安全”。
 
 #### 无状态双刃剑
 
-无状态的好处，因为服务器不会去记忆 HTTP 的状态，所以不需要额外的资源来记录状态信息，这能减轻服务器的负担，能够把更多的CPU 和内存用来对外提供服务。
+无状态的好处，因为服务器不会去记忆 HTTP 的状态，所以不需要额外的资源来记录状态信息，这能减轻服务器的负担，能够把更多的 CPU 和内存用来对外提供服务。
 
 无状态的坏处， 既然服务器没有记忆能力，它在完成有关联性的操作时会非常麻烦。
 
@@ -265,7 +265,7 @@ Cookie 通过在请求和响应报文中写入 Cookie 信息来控制客户端�
 
 #### 明文传输的双刃剑
 
-明文意味着在传输过程中的信息，是可方便阅读的，通过浏览器F12或Wireshark 抓包都可以直接肉眼查看。
+明文意味着在传输过程中的信息，是可方便阅读的，通过浏览器F12或 Wireshark 抓包都可以直接肉眼查看。
 
 但正是这样， HTTP 的所有信息都暴露在了光天化日之下，相当于信息裸奔。
 
@@ -514,7 +514,7 @@ QUIC是新协议，对于很多网络设备，根本不知道什么是QUIC，只
 
 <img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvcTsJcAXekhUYmHxS7JZ140D1q9bPNOZ2xeML16Hia4K6ByOjq0rcMPg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
-所以图中长长的 URL 实际上是请求服务器里的文件资源。
+所以图中长长的 URL 实际上是==请求服务器里的文件资源==。
 
 ### 要是上图中的蓝色部分 URL 元素都省略了，哪应该是请求哪个文件呢？
 
@@ -566,7 +566,7 @@ DNS 中的域名都是用句点来分隔的，比如 www.server.com，这里的�
 2. 本地域名服务器收到客户端的请求后，如果缓存里的表格能找到 www.server.com，则它直接返回 IP 地址，如果没有，本地 DNS 会去问它的根域名服务器：“老大，能告诉我 www.server.com 的 IP 地址吗？”根域名服务器是最高层次的，它不直接用于域名解析，但能指明一条道路。
 3. 根 DNS 收到来自本地 DNS 的请求后，发现后置是 .com，说：“www.server.com 这个域名归 .com 区域管理，我给你 .com 顶级域名服务器地址给你，你去问问它吧。”
 4. 本地 DNS 收到顶级域名服务器的地址后，发起请求问“老二，你能告诉我 www.server.com 的 IP 地址吗？”
-5. 顶级域名服务器说：“我给你负责 www.server.com 区域的权威 DNS 服务器的地址，你去问问它应该能问到。”
+5. 顶级域名服务器说：“我给你负责 www.server.com 区域的权威 DNS 服务器的地址，你去问问它应该能问到。”[^2]
 6. 本地 DNS 于是转向问权威 DNS 服务器：“老三，www.server.com 对应的 IP 是啥啊？” server.com 的权威 DNS 服务器，它是域名解析结果的原出处。为啥叫权威呢？就是我的域名我做主。
 7. 权威 DNS 服务器查询后将对应的 IP 地址 X.X.X.X 告诉本地 DNS。
 8. 本地 DNS 再将 IP 地址返回客户端，客户端和目标建立连接。
@@ -604,43 +604,106 @@ HTTP 是基于 TCP 协议传输的，所以在这我们先了解下 TCP 协议�
 
 <img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvWT9m8xicZXKk6ayV6nKAiaUAhdpdicfibLGEYhHx9OBo7EocXKx8wgIgww/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
-首先，源端口号和目的端口号是不可少的，如果没有这两个端口号，数据就不知道该发给哪个应用。
+首先，<u>源端口号</u>和<u>目的端口号</u>是不可少的，如果没有这两个端口号，数据就不知道该发给哪个应用。
 
-接下来有包的序号，这是为了解决包乱序的问题。
+接下来有包的<u>序号</u>，这是为了<u>解决包乱序的问题</u>。
 
-还应该有的是确认号，目的是确认发出去对方是否有收到。
+还应该有的是<u>确认号</u>，目的是<u>确认发出去对方是否有收到</u>。如果没有收到就应该重新发送, 直到送达, 这是为了<u>解决不丢包的问题</u>.
+
+接下来还有一些状态位. 例如 SYN 是发起一个连接, ACK 是回复, RST 是重新连接, FIN 是结束连接等. TCP 是面向连接的, 因而双方要维护连接的状态, 这些带状态位的包的发送, 会引起双方的状态变更.
+
+还有一个重要的就是<u>窗口大小</u>. TCP 要做<u>流量控制</u>, 通信双方各声明一个窗口(缓存大小), 标识自己当前能够的处理能力, 别发送的太快, 撑死我, 也别发的太慢, 饿死我.
+
+除了做流量控制以外, TCP 还会做<u>拥塞控制</u>, 对于真正的通路堵车不堵车, 它无能为力, 唯一能做的就是控制自己, 也即控制发送的速度. 不能改变世界, 就改变自己.
 
 ### TCP 传输数据之前，要先三次握手建立连接
 
+在 HTTP 传输数据之前, 首先需要 TCP 建立连接, TCP 连接的建立, 通常称为三次握手.
 
+这个所谓的「连接」,只是双方计算机里维护一个状态机, 在连接建立的过程中, 双方的状态变化时序图就像这样:
 
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvCUKg39o6S5sL4ZlRym1oibb3yLbN5NhCTBHIm2VhYzdbcykNy5mGEJA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
+* 一开始, 客户端和服务端都处于 CLOSED 状态. 先是服务端主动监听某个端口, 处于 LISTEN 状态.
+* 然后客户端主动发起连接 SYN, 之后处于 SYN-SENT 状态
+* 服务端收到发起的连接, 返回 SYN, 并且 ACK 客户端的 SYN, 之后处于 SYN-RCVD 状态
+* 客户端收到服务端发送的 SYN 和 ACK 之后, 发送 ACK 的 ACK, 之后处于 ESTABLISHED 状态, 因为它一发一收成功了.
+* 服务端收到 ACK 的 ACK 之后, 处于 ESTABLISHED 状态, 因为它也一发一收成功了.
+
+所以三次握手的目的是<u>**保证双方都有发送和接收的能力**</u>.
 
 ### 如何查看 TCP 的连接状态？
 
+TCP 的连接状态查看, 在 Linux 可以通过 `netstat -napt` 命令查看:
 
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvgY3pZypoxcTEb4lFv3hKN9Mcm7zny8vzzjKDBRPPWjqb30ecKEYKfQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
 ### TCP 分割数据
 
+如果 HTTP 请求消息比较长, 超过了 MSS 的长度, 这时 TCP 就需要把 HTTP 的数据拆解成一块块的数据发送, 而不是一次性发送所有数据.
 
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvGwQX0SDsblRZJf7OJuQPibox3JGIlRVTuCouOjMzgwPSoyx5orIMFmQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+* MTU: 一个网络包的最大长度, 以太网中一般为 1500 字节.
+* MSS: 除去 IP 和 TCP 头部之后, 一个网络包所能容纳的 TCP 数据的最大长度.
+
+数据会被以 MSS 的长度为单位进行拆分, 拆分出来的每一块数据都会被放进单独的网络包中. 也就是在每个被拆分的数据加上 TCP 头部信息, 然后交给 IP 模块来发送数据.
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvdOWGU3dj3HDafoDgY5BCAj3KichEvUCdID2p7bC5Jn7wiaUgHaN7Gjpw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
 ### TCP 报文生成
 
+TCP 协议里面会有两个端口, 一个是浏览器监听的端口(通常是随机生成的), 一个是 Web 服务器监听的端口(HTTP默认端口号是80, HTTPS 默认端口号是443).
 
+在双方建立了连接后, TCP 报文中的数据部分就是存放 HTTP 头部 + 数据, 组装好 TCP 报文之后, 就需交给下面的网络层处理.
+
+至此, 网络包的报文如下图:
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvTzcpo31hh6dibOX6PEGUYrK5sHeMv4YS0D9UjTRZyIDRE0IfbjJSdaA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
 ## 远程定位 —— IP
 
+TCP 模块在执行连接、收发、断开等各阶段操作时, 都需要委托 IP 模块将数据封装成网络包发送给通信对象.
+
 ### IP 包头格式
 
+我们先看看 IP 报文头部的格式:
 
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvLibU5EShhIAC4HcLbP2Cq6ogwg74BIX3aBc8j0l2mV9DVCCuzfEjhVQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+在 IP 协议里面需要有<u>源地址 IP</u> 和 <u>目标地址 IP</u>:
+
+* 源地址IP, 即是客户端输出的 IP 地址
+* 目标地址IP, 即通过 DNS 域名解析得到的 Web 服务器 IP.
+
+因为 HTTP 是经过 TCP 传输的, 所以在 IP 包头的协议号, 要填写为06(十六进制), 表示协议为 TCP.
 
 ### 假设客户端有多个网卡，就会有多个 IP 地址，那 IP 头部的源地址应该选择哪个 IP 呢?
 
+当存在多个网卡时, 在填写源地址 IP 时, 就需要判断到底该填写哪个地址. 这个判断相当于在多块网卡中判断应该使用哪一块网卡来发包.
 
+这个时候就需要根据路由表规则, 来判断哪一个网卡作为源地址 IP.
+
+在 Linux 操作系统, 我们可以使用 `route -n` 命令来查看当前系统的路由表.
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvyXicb8HyS1MX3KCbUzZV0xjHj6Mc3JxHwCyrT9zaQ7jFbgX9Uz8Mibrg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+举个例子, 根据上面的路由表, 我们假设 Web 服务器的目标地址是 192.168.10.200
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvZww6ogwicmBKNwWaUjzR4wpXtJhC5EicXMIc1hEn1Vq65YFEKOic1Wmsw/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+1. 首先先和第一条条目的子网掩码(Genmask) 进行「与运算」, 得到结果为 192.168.10.0, 但是第一个条目的 Destination 是 192.168.3.0, 两者不一致所以匹配失败.
+2. 再与第二条目的子网掩码进行「与运算」, 得到的结果为 192.168.10.0, 与第二条目的 Destination 192.168.10.0 匹配成功, 所以将使用 eth1 网卡的 IP 地址作为 IP 包头的源地址
+
+那么假设 Web 服务器的目标地址是 10.100.20.100, 那么依然依照上面的路由表规则判断, 判断后的结果是和第三条目匹配.
+
+第三条目比较特殊, 它目标地址和子网掩码都是 0.0.0.0, 这表示默认网关, 如果其他所有条目都无法匹配, 就会自动匹配这一行. 并且后续就把包发给路由器, Gateway 即是路由器的 IP 地址.
 
 ### IP 报文生成
 
+至此, 网络包的报文如下图:
 
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvObeicZLtRqF6wjeAR2vYP1eAh7WRXmcS3vlwMzmzswyqtWrJyiaZ57xg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
 ## 两点传输 —— MAC
 
@@ -709,4 +772,7 @@ HTTP 是基于 TCP 协议传输的，所以在这我们先了解下 TCP 协议�
 HTTP 协议
 
 [^1]: 现在 302 叫 FOUND 了， 不是 Moved Temporarily
+[^2]:这个地方还挺有意思的, 根DNS返回顶级DNS这个很好理解, 毕竟顶级DNS就只有那么几个, 而顶级DNS返回权威DNS这个就有点意思了, 我理解, 其实顶级DNS里已经存储了每个网址的名字, 但是对应IP是权威DNS, 相当于一批网址对应的IP具体信息放在某一台权威DNS上, 具体信息要到那台权威DNS上查看.
+
+
 
