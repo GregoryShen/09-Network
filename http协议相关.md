@@ -707,33 +707,76 @@ TCP 模块在执行连接、收发、断开等各阶段操作时, 都需要委�
 
 ## 两点传输 —— MAC
 
+生成了 IP 头部之后， 接下来网络包还需要在 IP 头部的前面加上 MAC 头部。
+
 ### MAC 包头格式
 
+MAC 头部是以太网使用的头部，它包含了接收方和发送方的 MAC 地址等信息。
 
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvxJ9alzpuxFNK4SicsCtCVDwtDoI32RXUxko9p25kgDQSHToomIibDIaA/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+在 MAC 包头里需要<u>发送方 MAC 地址</u>和<u>接收方目标 MAC 地址</u>，用于<u>两点之间的传输</u>。
+
+一般在 TCP/IP 通信里， MAC 包头的协议类型只能用：
+
+* 0800： IP 协议
+* 0806： ARP 协议
 
 ### MAC 发送方和接收方如何确认?
 
+发送方的 MAC 地址获取就比较简单了，MAC 地址是在网卡生产时写入到 ROM 里的，只要将这个值读取出来写入到 MAC 头部就可以了。
 
+接收方的 MAC 地址就有点复杂了，只要告诉以太网对方的 MAC 地址，以太网就会帮我们把包发送过去，那么很显然这里应该填写对方的 MAC 地址。
 
-### 既然知道要发给谁，按如何获取对方的 MAC 地址呢？
+所以先得搞清楚应该把包发给谁，这个只要查一下路由表就知道了。在路由表中找到相匹配的条目，然后把包发给 Gateway 列中的 IP 地址就可以了。
 
+### 既然不知道要发给谁，那如何获取对方的 MAC 地址呢？
 
+不知道对方 MAC 地址，就需要 ARP 协议帮我们找到路由器的 MAC 地址。
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvFq3nxQ0G2DUEKY4JtiaIDKaYE53ciaDohvicTYM0lN7DGatSWfFt7FJ9w/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+ARP 协议会在以太网中以广播的形式，对以太网所有的设备喊出”这个 IP 地址是谁的？ 请把你的 MAC 地址告诉我“。
+
+然后就会有人回答：“这个 IP 地址是我的，我的 MAC 地址是 xxx”。
+
+如果对方和自己处于同一个子网中，那么通过上面的操作就可以得到对方的 MAC 地址。然后，我们将这个 MAC 地址写入 MAC 头部，MAC 头部就完成了。
 
 ### 好像每次都要广播获取，这不是很麻烦吗？
 
+在后续操作系统会把本次查询结果放到一块叫做 ARP 缓存的内存空间留着以后用，不过缓存的时间就几分钟。
 
+也就是说，在发包时：
+
+* 先查询 ARP 缓存，如果其中已经保存了对方的 MAC 地址，就不需要发送 ARP 查询，直接使用 ARP 缓存中的地址。
+* 而当 ARP 缓存中不存在对方 MAC 地址时，则发送 ARP 广播查询。
 
 ### 查看 ARP 缓存内容
 
+在 Linux 系统中，我们可以使用 `arp -a` 命令来查看 ARP 缓存的内容。
 
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvTQuqsWJyLf9ia4JrTx2AAicnhSw1vBgesrd9EIToVaMEj3SESXHtDTOQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
 ### MAC 报文生成
 
+至此，网络包的报文如下图：
 
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvXwUb0quVf04jOA6PSQBw9JawNDhW2qykDZeicGBK1DQ6BSITEUMHjZQ/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
 ## 出口 —— 网卡
 
+IP 生成的网络包只是存放在内存中的一串二进制数字信息，没有办法直接发送给对方。因此，我们需要将数字信息转换为电信号，才能在网线上传输，也就是说，这才是真正的数据发送过程。
 
+负责执行这一操作的是<u>网卡</u>，要控制网卡还需要靠<u>网卡驱动程序</u>。
+
+网卡驱动从 IP 模块获取到包之后，会将其<u>复制</u>到网卡内的缓存区中，接着会在其<u>开头加上报头和起始帧分界符，在末尾加上用于检测错误的帧校验序列。</u>
+
+<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZdCwxNydn5YuT0s7aLuqWCvRO9LjjVa7839p3IrJsdCAT6DSicnLVOBadYNbD79VdJR3iaguEhlMBWg/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
+
+* 起始帧分界符是一个用来标记包起始位置的标记
+* 末尾的 FCS（帧校验序列）用来检查包传输过程是否有损坏
+
+最后网卡会将包转为电信号，通过网线发送出去。
 
 ## 送别者 —— 交换机
 
