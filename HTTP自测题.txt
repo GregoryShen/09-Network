@@ -1,17 +1,17 @@
-﻿1. HTTP 是什么？描述一下？
-2. 详细解释「超文本传输协议」?
-3. 「HTTP 是用于从互联网服务器传输超文本到本地浏览器等协议HTTP」这种说法正确吗?
-4. HTTP 常见的状态码有哪些？
-5. http 常见字段有哪些?(具体解释：Host，Content-Length，Connection，Content-Type，Content-Encoding)
-6. 说一下 GET 和 POST 的区别？
-7. GET 和 POST 方法都是安全和幂等的吗？
-8. 你知道的 HTTP(1.1) 的优点有哪些，怎么体现的？
-9. 那它的缺点呢？
-10.那你说下 HTTP/1.1 的性能如何？
-11.HTTP 与 HTTPS 有哪些区别？
-12.HTTPS 解决了 HTTP 的哪些问题？
-13.HTTPS 是如何解决上面的三个风险的？
-14.HTTPS是如何建立连接的？其间交互了什么？
-15.说说 HTTP/1.1 相比 HTTP/1.0 提高了什么性能？
-16.那上面的 HTTP/1.1 的性能瓶颈，HTTP/2 做了什么优化？
-17.HTTP/2 有哪些缺陷？HTTP/3 做了哪些优化？
+﻿01. HTTP 是什么？描述一下？
+02. 详细解释「超文本传输协议」?
+03. 「HTTP 是用于从互联网服务器传输超文本到本地浏览器等协议HTTP」这种说法正确吗?
+04. HTTP 常见的状态码有哪些？
+05. http 常见字段有哪些?(具体解释：Host，Content-Length，Connection，Content-Type，Content-Encoding)
+06. 说一下 GET 和 POST 的区别？
+07. GET 和 POST 方法都是安全和幂等的吗？
+08. 你知道的 HTTP(1.1) 的优点有哪些，怎么体现的？
+09. 那它的缺点呢？
+10. 那你说下 HTTP/1.1 的性能如何？
+11. HTTP 与 HTTPS 有哪些区别？
+12. HTTPS 解决了 HTTP 的哪些问题？
+13. HTTPS 是如何解决上面的三个风险的？
+14. HTTPS是如何建立连接的？其间交互了什么？
+15. 说说 HTTP/1.1 相比 HTTP/1.0 提高了什么性能？
+16. 那上面的 HTTP/1.1 的性能瓶颈，HTTP/2 做了什么优化？
+17. HTTP/2 有哪些缺陷？HTTP/3 做了哪些优化？

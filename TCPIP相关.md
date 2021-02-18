@@ -145,7 +145,7 @@ TCP 是面向连接的协议，所以使用TCP前必须先建立连接，而建�
 
 <img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843fFol7gd3035Kibg3gPMSAZQLVibf9nwEblOUaX80hoOaRLVpaYCAI44w/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
-1. 一开始，客户端和服务端都处于 CLOSED 状态。显示服务端主动监听某个端口，处于LISTEN状态
+1. 一开始，客户端和服务端都处于 CLOSED 状态。先是服务端主动监听某个端口，处于LISTEN状态
 
 	<img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843V0vbLBibXMvJbdiaqbfw4CictHX1Uc3OpOFWvZwxeI8B5Pv7y3beeAN9A/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:80%;" />
 
@@ -267,13 +267,13 @@ TCP 断开连接是通过四次挥手方式.
 
 <img src="https://mmbiz.qpic.cn/mmbiz_png/J0g14CUwaZeo9xBVAyPJ8iaWCC6sYS843KaMMu2mHfFLZNgiaREDZ5JicRYrlaiciayQjh9HDsacxIbMT0emGUpAX5w/640?wx_fmt=png&tp=webp&wxfrom=5&wx_lazy=1&wx_co=1" style="zoom:75%;" />
 
-1. 客户端打算关闭连接, 此时会发送一个TCP首部FIN标志位被置为1的报文, 也即FIN报文, 之后客户端进入 FIN_WAIT_1 状态
-2. 服务端收到该报文后, 就向客户端发送ACK应答报文, 接着服务端进入CLOSED_WAIT 状态
+1. 客户端打算关闭连接, 此时会发送一个TCP首部 FIN 标志位被置为1的报文, 也即 FIN 报文, 之后客户端进入 FIN_WAIT_1 状态
+2. 服务端收到该报文后, 就向客户端发送ACK应答报文, 接着服务端进入 CLOSED_WAIT 状态
 3. 客户端收到服务端的ACK 应答报文后, 之后进入 FIN_WAIT_2 状态
-4. 等待服务端处理完数据后, 也向客户端发送FIN报文, 之后服务端进入LAST_ACK 状态
-5. 客户端收到服务端的FIN报文后,回一个ACK应答报文, 之后服务端进入TIME_WAIT状态
-6. 服务端收到了ACK应答报文后, 就进入了CLOSE状态, 至此服务端已经完成连接的关闭
-7. 客户端在经过2MSL 一段时间后, 自动进入CLOSE状态, 至此客户端也完成连接的关闭
+4. 等待服务端处理完数据后, 也向客户端发送FIN报文, 之后服务端进入 LAST_ACK 状态
+5. 客户端收到服务端的FIN报文后,回一个 ACK 应答报文, 之后服务端进入 TIME_WAIT状态
+6. 服务端收到了ACK应答报文后, 就进入了 CLOSE 状态, 至此服务端已经完成连接的关闭
+7. 客户端在经过 2MSL 一段时间后, 自动进入 CLOSE 状态, 至此客户端也完成连接的关闭
 
 你可以看到, 每个方向都需要一个 FIN 和 一个 ACK, 因此通常被称为四次握手.
 
