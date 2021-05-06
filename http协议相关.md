@@ -186,6 +186,24 @@ Accpt: */*
 
 上面代码中, 客户端声明自己可以接受任何格式的数据
 
+##### [补充: 四种常见的 POST 提交数据方式](https://imququ.com/post/four-ways-to-post-data-in-http.html)
+
+###### application/x-www-form-urlencoded
+
+
+
+###### multipart/form-data
+
+
+
+###### application/json
+
+
+
+###### text/xml
+
+
+
 #### Content-Encoding
 
 Content-Encoding 字段<u>说明数据的压缩方法. 表示服务器返回的数据使用了什么压缩格式.</u>
