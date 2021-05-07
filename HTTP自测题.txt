@@ -1,7 +1,7 @@
 ﻿01. HTTP 是什么？描述一下？
 02. 详细解释「超文本传输协议」?
 03. 「HTTP 是用于从互联网服务器传输超文本到本地浏览器等协议HTTP」这种说法正确吗?
-04. HTTP 常见的状态码有哪些？
+04. HTTP 常见的状态码有哪些？ 并列举常见的状态码
 05. http 常见字段有哪些?(具体解释：Host，Content-Length，Connection，Content-Type，Content-Encoding)
 06. 说一下 GET 和 POST 的区别？
 07. GET 和 POST 方法都是安全和幂等的吗？

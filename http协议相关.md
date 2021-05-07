@@ -102,7 +102,7 @@ HTML 就是最常见的超文本了, 它本身只是纯文字文件, 但内部�
 
 #### 3xx
 
-`3xx` 类状态码表示客户端请求的资源发生了变动, 需要客户端用新的URL 重新发送请求获取资源, 也就是**重定向**
+`3xx` 类状态码表示客户端请求的资源发生了变动, 需要客户端用新的 URL 重新发送请求获取资源, 也就是**重定向**
 
 「**301 Moved Permanently**」表示永久重定向, 说明请求的资源已经不存在了, 需该用新的URL再次访问.
 
@@ -111,6 +111,32 @@ HTML 就是最常见的超文本了, 它本身只是纯文字文件, 但内部�
 301和302 都会在响应头里使用字段 Location, 指明后续要跳转的URL, 浏览器会自动重定向新的URL.
 
 「**304 Not Modified**」不具有跳转的含义, 表示资源未修改, 重定向已存在的缓冲文件, 也称缓存重定向, 用于缓存控制.
+
+##### [参考：状态码301和302的区别](https://www.cnblogs.com/zhuzhenwei918/p/7582620.html)
+
+定义如下：
+
+> 301 Moved Permanently 被请求的资源已永久移动到新的位置，并且将来任何对此资源的引用都应该使用本响应返回的若干个 URI 之一。如果可能，拥有链接编辑功能呢的客户端应当自动把请求的地址修改为从服务器反馈回来的地址。除非额外指定，否则这个响应也是可缓存的。
+>
+> 302 Found 请求的资源现在临时从不同的 URI 响应请求。由于这样的重定向是临时的，客户端应当继续向原有地址发送以后的请求，只有在 Cache-Control 或 Expires 中进行了指定的情况下，这个响应才是可缓存的。
+
+字面上的区别就是 301 是永久重定向，而 302 是临时重定向。当然，他们之间也是有共同点的，就是用户都可以看到 URL 替换为了一个新的，然后发出请求。
+
+###### 301 适合永久重定向
+
+301 比较常用的场景是使用域名跳转。
+
+比如，我们访问 http://www.baidu
+
+
+
+###### 302 用来做临时跳转
+
+
+
+###### 301 重定向和 302 重定向的区别
+
+
 
 #### 4xx
 
@@ -188,21 +214,137 @@ Accpt: */*
 
 ##### [补充: 四种常见的 POST 提交数据方式](https://imququ.com/post/four-ways-to-post-data-in-http.html)
 
+HTTP/1.1 协议规定的 HTTP 请求方法有 OPTIONS, GET, HEAD, POST, PUT, DELETE,TRACE, CONNECT 这几种。其中 POST 一般用来向服务端提交数据，本文主要讨论 POST 提交数据的几种方式
+
+我们知道，HTTP 协议是以 ASCII 码传输，建立在 TCP/IP 协议之上的应用层规范。规范把 HTTP 请求分成三个部分：请求行、请求头、消息主体，类似下面这样：
+
+> <method> <request-URL> <version>
+>
+> <headers>
+>
+>  
+>
+> <entity_body>
+
+协议规定 POST 提交的数据必须放在消息主体中，但协议并没有规定数据必须使用什么编码方式。实际上，开发者完全可以自己决定消息主体的格式，只要最后发送的 HTTP 请求满足上面的格式就可以。
+
+但是，数据发送出去，还要服务端解析成功才有意义。一般服务端语言如 PHP、Python 等以及他们的 framework都内置了自动解析常见数据格式的功能。服务端通常是根据请求头中的 Content-Type 字段来获知请求中的消息主体是用何种方式编码，再对主体进行解析。所以说到 POST 提交数据方案，包含了 Content-Type 和消息主体编码方式两部分。
+
 ###### application/x-www-form-urlencoded
 
+这是最常见的 POST 提交数据的方式。浏览器的原生 `<form>`表单，如果不设置`<enctype>`属性，那么最终就会以 application/x-www-form-urlencoded 方式提交数据。请求类似于下面这样
 
+```html
+POST http://www.example.com HTTP/1.1
+Content-Type: application/x-www-form-urlencoded;charset=utf-8
+
+title=test&sub%5B%5D=1&sub%5B%5D=2&sub%5B%5D=3
+```
+
+首先，`Content-Type`被指定为`application/x-www-form-urlencoded`; 其次，提交的数据按照`key1=val1&key2=val2`的方式进行编码，key 和 val 都进行了 URL 转码。大部分服务端语言都对这种方式有很好的支持。
+
+很多时候，我们用 Ajax 提交数据时，也是使用这种方式。例如 JQuery 和 Qwrap 的 Ajax，Content-Type 默认值都是 `application/x-www-form-urlencoded;charset=utf-8`
 
 ###### multipart/form-data
 
+这又是一个常见的 POST 数据提交的方式。我们使用表单上传文件时，必须让`<form>`表单的`<enctype>`等于`multipart/form-data`，直接来看一个请求示例
 
+```html
+POST http://www.example.com HTTP/1.1
+Content-Type:multipart/form-data; boundary=----WebKitFormBoundaryrGKCBY7qhFd3TrwA
+
+------WebKitFormBoundaryrGKCBY7qhFd3TrwA
+Content-Disposition: form-data; name="text"
+
+title
+------WebKitFormBoundaryrGKCBY7qhFd3TrwA
+Content-Disposition: form-data; name="file"; filename="chrome.png"
+Content-Type: image/png
+
+PNG ... content of chrome.png ...
+------WebKitFormBoundaryrGKCBY7qhFd3TrwA--
+```
+
+首先生成了一个 boundary 用于分割不同的字段，为了避免与正文内容重复，boundary 很长很杂。然后 Content-Type 里指明了数据是以 multipart/form-data 来编码的，本次请求的 boundary 是什么内容。消息主体里按照字段个数又分为多个结构类似的部分，每部分都是以`--boundary`开始，紧接着是内容描述信息，然后是回车，最后是字段具体内容（文本或二进制）。如果传输的是文件，还要包括文件名和文件类型信息。消息主体最后以`--boundary--`标识结束。
+
+这种方式一般用来上传文件，各大服务端语言对它也有着良好的支持。
+
+上面提到的这两种 POST 数据的方式，都是浏览器原生支持的，而且现阶段标准中原生`<form>`表单也只支持这两种方式（通过`<form>`元素的`enctype`属性指定，默认为`application/x-www-form-urlencoded`。其实`enctype`还支持`text/plain`，不过用的非常少）
+
+> [HTML <form> 标签的 enctype 属性](https://www.w3school.com.cn/tags/att_form_enctype.asp)
+>
+> ###### 实例
+>
+> 在下面的例子中，表单数据会在未编码的情况下进行发送：
+>
+> ```html
+> <form action="form_action.asp" enctype="text/plain">
+>     <p>First name: <input type="text" name="fname" /></p>
+>     <p>Last name: <input type="text" name="lname" /></p>
+>     <input type="submit" value="Submit" />
+> </form>
+> ```
+>
+> ###### 定义和用法
+>
+> enctype 属性规定在发送到服务器之前应该如何对表单数据进行编码。
+>
+> 默认地，表单数据会编码为“application/x-www-form-urlencoded”。就是说，在发送到服务器之前，所有字符都会进行编码（空格转换为”+“加号，特殊符号转换为 ASCII HEX 值）。
+>
+> ###### 语法
+>
+> ```html
+> <from enctype="value">
+> ```
+>
+> ###### 属性值
+>
+> | 值                                | 描述                                                       |
+> | --------------------------------- | ---------------------------------------------------------- |
+> | application/x-www-form-urlencoded | 在发送前编码所有字符（默认）                               |
+> | multipart/form-data               | 不对字符编码。在使用包含文件上传控件的表单时，必须使用该值 |
+> | text/plain                        | 空格转换为“+”加号，但不对特殊字符编码                      |
+
+随着越来越多的 Web 站点，尤其是 WebApp 全部使用 Ajax 进行数据交互之后，完全可以定义新的数据提交方式，给开发带来更多便利。
 
 ###### application/json
 
+现在越来越多的人把它作为请求头，用来告诉服务端消息主体是序列化后的 json 字符串。由于 json 规范的流行，除了低版本 IE 之外的各大浏览器都原生支持 json.stringify， 服务端语言也都有处理 json 的函数，使用 json 不会遇上什么麻烦。
 
+json 格式支持比键值对复杂的多的结构化数据，这一点也很有用。
+
+Angular JS 中的 Ajax 功能，默认就是提交 json 字符串。例如下面这段代码：
+
+```javascript
+var data = {'title':'test', 'sub': [1,2,3]};
+$http.post(url, data).success(function(result) {
+    ...
+});
+```
+
+最终发送的请求是：
+
+> POST http://www.example.com HTTP/1.1
+>
+> Content-Type: application/json;charset=utf-8
+>
+>  
+>
+> {“title”:”test”, “sub”:[1,2,3]}
+
+这种方案，可以方便的提交复杂的结构化数据，特别适合 RESTful 的接口。各大抓包工具都会以树形结构展示 json 数据。
 
 ###### text/xml
 
+之前提到过 XML-RPC（XML Remote Procedure Call）是一种使用 HTTP 作为传输协议， xml 作为编码方式的远程调用规范。典型的 xml-rpc 请求是这样的：
 
+> POST http://www.example.com HTTP/1.1
+>
+> Content-Type: text/xml
+>
+> …
+
+XML-RPC 协议简单、功能够用，各种语言的实现都有。不过 XML 结构还是过于臃肿，一般场景用 JSON 会更灵活方便。
 
 #### Content-Encoding
 
