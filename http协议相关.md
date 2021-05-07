@@ -100,6 +100,16 @@ HTML 就是最常见的超文本了, 它本身只是纯文字文件, 但内部�
 
 「206 Partial Content」是应用于 HTTP 分块下载或断点续传, 表示响应返回的body 数据并不是资源的全部, 而是其中的一部分, 也是服务器处理成功的状态.
 
+##### [补充: 200和201的区别](https://www.cnblogs.com/cathsfz/archive/2012/06/19/2553431.html)
+
+200 OK
+
+201 Created
+
+如果你在设计一个 REST API, 或者一个 CRUD API, 当你使用 POST(或者 PUT) 成功创建一个新的资源后, 服务器应该返回 201 Created 同时在 header 的 Location 字段给出刚刚创建好的这个资源的 URI.
+
+例如说,如果你使用 POST 请求通过 \comments URI 创建了一个新的评论, 那么服务器应该返回201 Created, 同时带上形如 Location: \comments\1234 的字段表明新创建的评论的 URI.
+
 #### 3xx
 
 `3xx` 类状态码表示客户端请求的资源发生了变动, 需要客户端用新的 URL 重新发送请求获取资源, 也就是**重定向**
@@ -112,7 +122,7 @@ HTML 就是最常见的超文本了, 它本身只是纯文字文件, 但内部�
 
 「**304 Not Modified**」不具有跳转的含义, 表示资源未修改, 重定向已存在的缓冲文件, 也称缓存重定向, 用于缓存控制.
 
-##### [参考：状态码301和302的区别](https://www.cnblogs.com/zhuzhenwei918/p/7582620.html)
+##### [补充: 301和302的区别](https://www.cnblogs.com/zhuzhenwei918/p/7582620.html)
 
 定义如下：
 
@@ -126,17 +136,33 @@ HTML 就是最常见的超文本了, 它本身只是纯文字文件, 但内部�
 
 301 比较常用的场景是使用域名跳转。
 
-比如，我们访问 http://www.baidu
+比如，我们访问 http://www.baidu.com 会跳转到 https://www.baidu.com, 发送请求之后, 就会返回301状态码, 然后返回一个 location, 提示新的地址, 浏览器就会拿着这个新的地址去访问.
 
-
+**<u>注意</u>**: 301请求是可以缓存的,即通过看 status code, 可以发现后面写着 from cache.[^3]或者你把你的网页的名称从 php 修改为 html, 这个过程中, 也会发生永久重定向.
 
 ###### 302 用来做临时跳转
 
+比如未登录的用户访问用户中心重定向到登录页面. 访问404页面会重定向到首页.
 
+```shell
+## nginx 301/302配置
+
+# 把来自 veryyoung.me 的请求 301 跳到 www.veryyoung.me
+if ($host != 'veryyoung.me') {
+	rewrite ^/(.*)$ http://www.veryyoung.me/$1 permanent;	# rewrite 后面接上 permanent 就代表 301 跳
+}
+
+# 把来自 veryyoung.me的请求302跳到 www.veryyoung.me
+if ($host != 'veryyoung.me') {
+	rewrite ^/(.*)$ http://www.veryyoung.me/$1 redirect;	# 接上redirect 就代表302跳
+}
+```
 
 ###### 301 重定向和 302 重定向的区别
 
+302 重定向只是暂时的重定向,搜索引擎会抓取新的内容而保留旧的地址,因为服务器返回302,所以,搜索引擎认为新的网址是暂时的.
 
+而301重定向是永久的重定向,搜索引擎在抓取新的内容的同时也将旧的网址替换为了重定向之后的网址.
 
 #### 4xx
 
@@ -1094,6 +1120,10 @@ HTTP 响应报文也需要穿上TCP、IP、MAC 头部，不过这次源地址是
 
 [^1]: 现在 302 叫 FOUND 了， 不是 Moved Temporarily
 [^2]:这个地方还挺有意思的, 根DNS返回顶级DNS这个很好理解, 毕竟顶级DNS就只有那么几个, 而顶级DNS返回权威DNS这个就有点意思了, 我理解, 其实顶级DNS里已经存储了每个网址的名字, 但是对应IP是权威DNS, 相当于一批网址对应的IP具体信息放在某一台权威DNS上, 具体信息要到那台权威DNS上查看.
+
+[^3]:经过验证,并不是在status code里有写from cache,而是在headers里的X-Cache字段中有,而且是从cdn的某个地址返回的,还触发了304 Not Modified
+
+
 
 
 
